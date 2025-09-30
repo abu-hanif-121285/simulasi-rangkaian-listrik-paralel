@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulasi Rangkaian Paralel dengan Lampu Dapat Dilepas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .circuit-box {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .circuit-box:hover {
+            transform: translateY(-5px);
+        }
+
+        .circuit-title {
+            text-align: center;
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .circuit-svg {
+            width: 100%;
+            height: 400px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .controls-box {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .controls-title {
+            text-align: center;
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .bulb-control {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .bulb-control:hover {
+            background: #e9ecef;
+        }
+
+        .bulb-label {
+            font-weight: bold;
+            color: #333;
+            display: flex;
+            align-items: center;
+        }
+
+        .bulb-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            margin-right: 10px;
+            border: 2px solid #333;
+        }
+
+        .bulb-indicator.connected {
+            background: #fff3cd;
+        }
+
+        .bulb-indicator.on {
+            background: #ffd700;
+            box-shadow: 0 0 10px #ffd700;
+        }
+
+        .toggle-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn:hover {
+            background: #5a6268;
+        }
+
+        .toggle-btn.connected {
+            background: #28a745;
+        }
+
+        .toggle-btn.connected:hover {
+            background: #218838;
+        }
+
+        .switch-control {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 2px solid #2196f3;
+        }
+
+        .switch-label {
+            font-weight: bold;
+            color: #1976d2;
+        }
+
+        .main-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+
+        .main-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 30px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #4CAF50;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+
+        .info-box {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .info-title {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .concept-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .concept-title {
+            color: #2e7d32;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .concept-list {
+            list-style-type: none;
+            padding-left: 10px;
+        }
+
+        .concept-list li {
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 25px;
+            line-height: 1.5;
+        }
+
+        .concept-list li:before {
+            content: "⚡";
+            position: absolute;
+            left: 0;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .status-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .status-item.active {
+            background: #fff3cd;
+            border-color: #ffd700;
+        }
+
+        .status-label {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .status-value {
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        .status-value.on {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        /* SVG Styles */
+        .wire {
+            stroke: #333;
+            stroke-width: 3;
+            fill: none;
+        }
+
+        .wire.active {
+            stroke: #ffd700;
+            filter: drop-shadow(0 0 5px #ffd700);
+        }
+
+        .wire.disconnected {
+            stroke-dasharray: 5, 5;
+            stroke: #999;
+        }
+
+        .battery {
+            fill: #333;
+        }
+
+        .switch-base {
+            fill: #666;
+            stroke: #333;
+            stroke-width: 2;
+        }
+
+        .switch-lever {
+            fill: #999;
+            stroke: #333;
+            stroke-width: 2;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .switch-lever:hover {
+            fill: #777;
+        }
+
+        .bulb {
+            fill: #e0e0e0;
+            stroke: #333;
+            stroke-width: 2;
+            transition: all 0.3s ease;
+        }
+
+        .bulb.on {
+            fill: #ffd700;
+            filter: drop-shadow(0 0 20px #ffd700);
+        }
+
+        .bulb.removed {
+            opacity: 0.3;
+        }
+
+        .bulb-filament {
+            stroke: #666;
+            stroke-width: 1;
+            fill: none;
+        }
+
+        .bulb-filament.on {
+            stroke: #ff6b00;
+        }
+
+        .bulb-filament.removed {
+            opacity: 0.3;
+        }
+
+        .current-flow {
+            stroke: #ffd700;
+            stroke-width: 2;
+            fill: none;
+            opacity: 0;
+            stroke-dasharray: 5, 5;
+        }
+
+        .current-flow.active {
+            opacity: 1;
+            animation: flow 1s linear infinite;
+        }
+
+        @keyframes flow {
+            to {
+                stroke-dashoffset: -10;
+            }
+        }
+
+        .connection-point {
+            fill: #333;
+            stroke: none;
+        }
+
+        .connection-point.disconnected {
+            fill: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ Simulasi Rangkaian Paralel dengan Lampu Dapat Dilepas ⚡</h1>
+        
+        <div class="main-content">
+            <!-- Rangkaian Paralel -->
+            <div class="circuit-box">
+                <h2 class="circuit-title">Rangkaian Paralel (3 Lampu)</h2>
+                <svg class="circuit-svg" viewBox="0 0 600 400">
+                    <!-- Baterai -->
+                    <g id="battery-parallel">
+                        <rect x="30" y="180" width="30" height="30" class="battery"/>
+                        <text x="45" y="200" text-anchor="middle" fill="white" font-size="12">+</text>
+                        <rect x="30" y="170" width="10" height="10" class="battery"/>
+                        <rect x="50" y="170" width="10" height="10" class="battery"/>
+                    </g>
+                    
+                    <!-- Kabel Utama -->
+                    <path id="wire-main1-parallel" class="wire" d="M 60 195 L 120 195"/>
+                    <path id="wire-main2-parallel" class="wire" d="M 480 195 L 540 195 L 540 320 L 60 320 L 60 225"/>
+                    
+                    <!-- Cabang 1 (Atas) -->
+                    <path id="wire-branch1-parallel" class="wire" d="M 120 195 L 120 100 L 150 100"/>
+                    <path id="wire-branch2-parallel" class="wire" d="M 270 100 L 480 100 L 480 195"/>
+                    
+                    <!-- Cabang 2 (Tengah) -->
+                    <path id="wire-branch3-parallel" class="wire" d="M 120 195 L 120 180 L 150 180"/>
+                    <path id="wire-branch4-parallel" class="wire" d="M 270 180 L 480 180 L 480 195"/>
+                    
+                    <!-- Cabang 3 (Bawah) -->
+                    <path id="wire-branch5-parallel" class="wire" d="M 120 195 L 120 260 L 150 260"/>
+                    <path id="wire-branch6-parallel" class="wire" d="M 270 260 L 480 260 L 480 195"/>
+                    
+                    <!-- Titik Sambungan -->
+                    <circle cx="120" cy="195" r="4" class="connection-point"/>
+                    <circle cx="480" cy="195" r="4" class="connection-point"/>
+                    
+                    <!-- Saklar Utama -->
+                    <g id="switch-parallel">
+                        <rect x="160" y="185" width="60" height="20" class="switch-base" rx="5"/>
+                        <circle id="switch-lever-parallel" cx="185" cy="195" r="8" class="switch-lever" data-circuit="parallel"/>
+                        <text x="190" y="175" text-anchor="middle" font-size="12" fill="#333">Saklar</text>
+                    </g>
+                    
+                    <!-- Lampu 1 -->
+                    <g id="bulb1-parallel">
+                        <circle cx="210" cy="100" r="20" class="bulb" data-bulb="1"/>
+                        <path d="M 198 100 Q 210 92 222 100 M 198 100 Q 210 108 222 100" class="bulb-filament" data-bulb="1"/>
+                        <text x="210" y="70" text-anchor="middle" font-size="12" fill="#333">L1</text>
+                    </g>
+                    
+                    <!-- Lampu 2 -->
+                    <g id="bulb2-parallel">
+                        <circle cx="210" cy="180" r="20" class="bulb" data-bulb="2"/>
+                        <path d="M 198 180 Q 210 172 222 180 M 198 180 Q 210 188 222 180" class="bulb-filament" data-bulb="2"/>
+                        <text x="210" y="150" text-anchor="middle" font-size="12" fill="#333">L2</text>
+                    </g>
+                    
+                    <!-- Lampu 3 -->
+                    <g id="bulb3-parallel">
+                        <circle cx="210" cy="260" r="20" class="bulb" data-bulb="3"/>
+                        <path d="M 198 260 Q 210 252 222 260 M 198 260 Q 210 268 222 260" class="bulb-filament" data-bulb="3"/>
+                        <text x="210" y="290" text-anchor="middle" font-size="12" fill="#333">L3</text>
+                    </g>
+                    
+                    <!-- Arus Listrik -->
+                    <path id="current1-parallel" class="current-flow" d="M 120 195 L 120 100 L 150 100 L 210 100 L 270 100 L 480 100 L 480 195"/>
+                    <path id="current2-parallel" class="current-flow" d="M 120 195 L 120 180 L 150 180 L 210 180 L 270 180 L 480 180 L 480 195"/>
+                    <path id="current3-parallel" class="current-flow" d="M 120 195 L 120 260 L 150 260 L 210 260 L 270 260 L 480 260 L 480 195"/>
+                </svg>
+            </div>
+            
+            <!-- Kontrol Panel -->
+            <div class="controls-box">
+                <h2 class="controls-title">Kontrol Rangkaian</h2>
+                
+                <div class="switch-control">
+                    <div class="switch-label">Saklar Utama</div>
+                    <label class="main-switch">
+                        <input type="checkbox" id="main-switch">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <h3 style="margin-bottom: 15px; color: #333;">Kontrol Lampu</h3>
+                
+                <div class="bulb-control" id="control-bulb1">
+                    <div class="bulb-label">
+                        <div class="bulb-indicator" id="indicator1"></div>
+                        <span>Lampu 1</span>
+                    </div>
+                    <button class="toggle-btn connected" id="toggle1">Lepas</button>
+                </div>
+                
+                <div class="bulb-control" id="control-bulb2">
+                    <div class="bulb-label">
+                        <div class="bulb-indicator" id="indicator2"></div>
+                        <span>Lampu 2</span>
+                    </div>
+                    <button class="toggle-btn connected" id="toggle2">Lepas</button>
+                </div>
+                
+                <div class="bulb-control" id="control-bulb3">
+                    <div class="bulb-label">
+                        <div class="bulb-indicator" id="indicator3"></div>
+                        <span>Lampu 3</span>
+                    </div>
+                    <button class="toggle-btn connected" id="toggle3">Lepas</button>
+                </div>
+                
+                <div class="status-grid">
+                    <div class="status-item" id="status-switch-parallel">
+                        <div class="status-label">Saklar</div>
+                        <div class="status-value" id="switch-value-parallel">OFF</div>
+                    </div>
+                    <div class="status-item" id="status-bulb1-parallel">
+                        <div class="status-label">Lampu 1</div>
+                        <div class="status-value" id="bulb-value1-parallel">Terpasang</div>
+                    </div>
+                    <div class="status-item" id="status-bulb2-parallel">
+                        <div class="status-label">Lampu 2</div>
+                        <div class="status-value" id="bulb-value2-parallel">Terpasang</div>
+                    </div>
+                    <div class="status-item" id="status-bulb3-parallel">
+                        <div class="status-label">Lampu 3</div>
+                        <div class="status-value" id="bulb-value3-parallel">Terpasang</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <h2 class="info-title">Konsep Rangkaian Paralel</h2>
+            
+            <div class="concept-box">
+                <h3 class="concept-title">Prinsip Dasar Rangkaian Paralel</h3>
+                <ul class="concept-list">
+                    <li>Dalam rangkaian paralel, setiap komponen (lampu) memiliki jalur tersendiri</li>
+                    <li>Tegangan pada setiap cabang adalah sama</li>
+                    <li>Jika satu lampu dilepas, lampu lainnya tetap menyala</li>
+                    <li>Saklar utama mengontrol aliran listrik ke semua cabang</li>
+                </ul>
+            </div>
+            
+            <div class="concept-box">
+                <h3 class="concept-title">Cara Penggunaan Simulasi</h3>
+                <ul class="concept-list">
+                    <li>Nyalakan saklar utama untuk mengalirkan listrik ke rangkaian</li>
+                    <li>Klik tombol "Lepas" untuk melepas lampu dari rangkaian</li>
+                    <li>Amati bahwa lampu lainnya tetap menyala meskipun satu lampu dilepas</li>
+                    <li>Klik tombol "Pasang" untuk memasang kembali lampu</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State untuk rangkaian
+        const circuitState = {
+            switchOn: false,
+            bulbs: {
+                1: {
+                    connected: true,
+                    on: false
+                },
+                2: {
+                    connected: true,
+                    on: false
+                },
+                3: {
+                    connected: true,
+                    on: false
+                }
+            }
+        };
+
+        // Fungsi untuk mengupdate tampilan rangkaian
+        function updateCircuit() {
+            // Update saklar
+            const switchLever = document.getElementById('switch-lever-parallel');
+            const switchValue = document.getElementById('switch-value-parallel');
+            const switchStatus = document.getElementById('status-switch-parallel');
+            
+            if (circuitState.switchOn) {
+                switchLever.setAttribute('cx', '205');
+                switchValue.textContent = 'ON';
+                switchValue.classList.add('on');
+                switchStatus.classList.add('active');
+            } else {
+                switchLever.setAttribute('cx', '175');
+                switchValue.textContent = 'OFF';
+                switchValue.classList.remove('on');
+                switchStatus.classList.remove('active');
+            }
+            
+            // Update kabel utama
+            const mainWires = document.querySelectorAll('#wire-main1-parallel, #wire-main2-parallel');
+            const anyBulbOn = Object.values(circuitState.bulbs).some(bulb => bulb.connected && bulb.on);
+            
+            if (circuitState.switchOn && anyBulbOn) {
+                mainWires.forEach(wire => wire.classList.add('active'));
+            } else {
+                mainWires.forEach(wire => wire.classList.remove('active'));
+            }
+            
+            // Update setiap lampu
+            for (let i = 1; i <= 3; i++) {
+                updateBulb(i);
+            }
+        }
+
+        // Fungsi untuk update lampu
+        function updateBulb(bulbNumber) {
+            const bulb = document.querySelector(`#bulb${bulbNumber}-parallel .bulb`);
+            const filament = document.querySelector(`#bulb${bulbNumber}-parallel .bulb-filament`);
+            const wires = document.querySelectorAll(`#wire-branch${(parseInt(bulbNumber) * 2 - 1)}-parallel, #wire-branch${(parseInt(bulbNumber) * 2)}-parallel`);
+            const current = document.getElementById(`current${bulbNumber}-parallel`);
+            const bulbValue = document.getElementById(`bulb-value${bulbNumber}-parallel`);
+            const bulbStatus = document.getElementById(`status-bulb${bulbNumber}-parallel`);
+            const indicator = document.getElementById(`indicator${bulbNumber}`);
+            const toggleBtn = document.getElementById(`toggle${bulbNumber}`);
+            
+            const bulbState = circuitState.bulbs[bulbNumber];
+            
+            // Update status koneksi
+            if (bulbState.connected) {
+                bulb.classList.remove('removed');
+                filament.classList.remove('removed');
+                bulbValue.textContent = 'Terpasang';
+                toggleBtn.textContent = 'Lepas';
+                toggleBtn.classList.add('connected');
+                indicator.classList.add('connected');
+                
+                // Jika terhubung, periksa apakah harus menyala
+                if (circuitState.switchOn) {
+                    bulb.classList.add('on');
+                    filament.classList.add('on');
+                    wires.forEach(wire => wire.classList.add('active'));
+                    current.classList.add('active');
+                    bulbValue.textContent = 'Menyala';
+                    bulbValue.classList.add('on');
+                    bulbStatus.classList.add('active');
+                    indicator.classList.add('on');
+                    bulbState.on = true;
+                } else {
+                    bulb.classList.remove('on');
+                    filament.classList.remove('on');
+                    wires.forEach(wire => wire.classList.remove('active'));
+                    current.classList.remove('active');
+                    bulbValue.textContent = 'Terpasang';
+                    bulbValue.classList.remove('on');
+                    bulbStatus.classList.remove('active');
+                    indicator.classList.remove('on');
+                    bulbState.on = false;
+                }
+            } else {
+                // Jika tidak terhubung
+                bulb.classList.add('removed');
+                filament.classList.add('removed');
+                bulb.classList.remove('on');
+                filament.classList.remove('on');
+                wires.forEach(wire => {
+                    wire.classList.remove('active');
+                    wire.classList.add('disconnected');
+                });
+                current.classList.remove('active');
+                bulbValue.textContent = 'Dilepas';
+                bulbValue.classList.remove('on');
+                bulbStatus.classList.remove('active');
+                toggleBtn.textContent = 'Pasang';
+                toggleBtn.classList.remove('connected');
+                indicator.classList.remove('connected');
+                indicator.classList.remove('on');
+                bulbState.on = false;
+            }
+        }
+
+        // Event listener untuk saklar utama
+        document.getElementById('main-switch').addEventListener('change', function() {
+            circuitState.switchOn = this.checked;
+            updateCircuit();
+        });
+
+        // Event listener untuk tombol toggle lampu
+        for (let i = 1; i <= 3; i++) {
+            document.getElementById(`toggle${i}`).addEventListener('click', function() {
+                circuitState.bulbs[i].connected = !circuitState.bulbs[i].connected;
+                updateCircuit();
+            });
+        }
+
+        // Inisialisasi tampilan
+        updateCircuit();
+    </script>
+</body>
+</html>
